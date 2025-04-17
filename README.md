@@ -20,7 +20,7 @@ Play it live: [voltrob-flip.vercel.app](https://voltrob-flip.vercel.app)
 ## Controls
 
 - **Left-click**: Flip a tile
-- **Right-click**: Mark/unmark a tile as a suspected Voltorb
+- **Right-click**: Mark/unmark a tile as a suspected Voltorb(Click and hold for mobile devices)
 
 ## Leveling Logic
 
