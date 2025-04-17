@@ -12,8 +12,8 @@ function generateBoard(level = 1) {
   let voltorbsPlaced = 0;
   while (voltorbsPlaced < voltorbCount) {
     const idx = Math.floor(Math.random() * totalTiles);
-    if (flatTiles[idx].value !== "V") {
-      flatTiles[idx] = { value: "V", flipped: false, marked: false };
+    if (flatTiles[idx].value !== 'V') {
+      flatTiles[idx] = { value: 'V', flipped: false, marked: false };
       voltorbsPlaced++;
     }
   }
@@ -37,29 +37,24 @@ function generateBoard(level = 1) {
 }
 
 function calculateClues(board) {
-  const rowClues = board.map((row) => {
-    const voltorbs = row.filter((t) => t.value === "V").length;
-    const sum = row.reduce((acc, t) => acc + (t.value === "V" ? 0 : t.value), 0);
+  const rowClues = board.map(row => {
+    const voltorbs = row.filter(t => t.value === 'V').length;
+    const sum = row.reduce((acc, t) => acc + (t.value === 'V' ? 0 : t.value), 0);
     return { voltorbs, sum };
   });
 
   const colClues = [];
   for (let j = 0; j < GRID_SIZE; j++) {
-    let voltorbs = 0,
-      sum = 0;
+    let voltorbs = 0, sum = 0;
     for (let i = 0; i < GRID_SIZE; i++) {
       const tile = board[i][j];
-      if (tile.value === "V") voltorbs++;
+      if (tile.value === 'V') voltorbs++;
       else sum += tile.value;
     }
     colClues.push({ voltorbs, sum });
   }
 
   return { rowClues, colClues };
-}
-
-function countBonusTiles(board) {
-  return board.flat().filter((t) => t.value === 2 || t.value === 3).length;
 }
 
 export default function App() {
@@ -69,48 +64,44 @@ export default function App() {
   const [score, setScore] = useState(1);
   const [highScore, setHighScore] = useState(1);
   const [clues, setClues] = useState(() => calculateClues(board));
-  const [bonusTilesLeft, setBonusTilesLeft] = useState(() => countBonusTiles(board));
 
   const flipTile = (i, j) => {
     if (gameOver || board[i][j].flipped || board[i][j].marked) return;
-
-    const newBoard = board.map((row) => row.map((tile) => ({ ...tile })));
+    const newBoard = board.map(row => row.map(tile => ({ ...tile })));
     const tile = newBoard[i][j];
     tile.flipped = true;
 
-    if (tile.value === "V") {
+    if (tile.value === 'V') {
       setGameOver(true);
       alert("Voltorb! Game Over.");
     } else {
-      const newBonusLeft =
-        tile.value > 1 ? bonusTilesLeft - 1 : bonusTilesLeft;
       const newScore = score * tile.value;
       setScore(newScore);
       if (newScore > highScore) setHighScore(newScore);
 
-      if (newBonusLeft === 0) {
+      const allBonusFlipped = newBoard.flat().every(t =>
+        t.value === 'V' || t.value === 1 || t.flipped
+      );
+
+      if (allBonusFlipped) {
         alert("You win! Advancing to next level.");
         const nextLevel = level + 1;
         const newBoard = generateBoard(nextLevel);
         setLevel(nextLevel);
         setBoard(newBoard);
         setScore(1);
-        setGameOver(false);
         setClues(calculateClues(newBoard));
-        setBonusTilesLeft(countBonusTiles(newBoard));
+        setGameOver(false);
         return;
       }
-
-      setBonusTilesLeft(newBonusLeft);
     }
-
     setBoard(newBoard);
   };
 
   const markTile = (e, i, j) => {
     e.preventDefault();
     if (gameOver || board[i][j].flipped) return;
-    const newBoard = board.map((row) => row.map((tile) => ({ ...tile })));
+    const newBoard = board.map(row => row.map(tile => ({ ...tile })));
     newBoard[i][j].marked = !newBoard[i][j].marked;
     setBoard(newBoard);
   };
@@ -121,7 +112,6 @@ export default function App() {
     setScore(1);
     setGameOver(false);
     setClues(calculateClues(newBoard));
-    setBonusTilesLeft(countBonusTiles(newBoard));
   };
 
   const handleLevelSelect = (e) => {
@@ -132,7 +122,6 @@ export default function App() {
     setScore(1);
     setGameOver(false);
     setClues(calculateClues(newBoard));
-    setBonusTilesLeft(countBonusTiles(newBoard));
   };
 
   return (
@@ -143,77 +132,63 @@ export default function App() {
       <p className="mb-2">High Score: {highScore}</p>
 
       <div className="mb-2">
-        <label htmlFor="levelSelect" className="mr-2 font-medium">
-          Select Level:
-        </label>
+        <label htmlFor="levelSelect" className="mr-2 font-medium">Select Level:</label>
         <select
           id="levelSelect"
           value={level}
           onChange={handleLevelSelect}
           className="border rounded px-2 py-1"
         >
-          {Array.from({ length: 10 }, (_, i) => i + 1).map((lvl) => (
-            <option key={lvl} value={lvl}>
-              Level {lvl}
-            </option>
+          {Array.from({ length: 10 }, (_, i) => i + 1).map(lvl => (
+            <option key={lvl} value={lvl}>Level {lvl}</option>
           ))}
         </select>
       </div>
 
       <div className="inline-block">
-        <div className="grid grid-cols-6 gap-1 mb-2">
-          {/* Top-left empty cell */}
-          <div className="w-16 h-16" />
-
-          {/* Column clues */}
+        <div className="grid grid-cols-5 gap-2 mb-1">
           {clues.colClues.map((clue, idx) => (
-            <div
-              key={`col-clue-${idx}`}
-              className="w-16 h-16 bg-yellow-200 rounded p-1 text-xs font-semibold flex flex-col items-center justify-center"
-            >
+            <div key={`col-${idx}`} className="text-sm">
               <div>Sum: {clue.sum}</div>
               <div>V: {clue.voltorbs}</div>
             </div>
           ))}
+        </div>
 
-          {/* Board rows with row clues at start */}
-          {board.map((row, i) => (
-            <React.Fragment key={`row-${i}`}>
-              {/* Row clue */}
-              <div className="w-16 h-16 bg-yellow-200 rounded p-1 text-xs font-semibold flex flex-col items-center justify-center">
-                <div>Sum: {clues.rowClues[i].sum}</div>
-                <div>V: {clues.rowClues[i].voltorbs}</div>
-              </div>
-
-              {/* Row tiles */}
-              {row.map((tile, j) => (
+        <div className="flex">
+          <div className="grid grid-cols-5 gap-2">
+            {board.map((row, i) =>
+              row.map((tile, j) => (
                 <button
                   key={`${i}-${j}`}
                   className={`w-16 h-16 text-xl font-bold rounded relative ${
-                    tile.flipped
-                      ? "bg-white border border-gray-400"
-                      : "bg-blue-500 text-white"
+                    tile.flipped ? "bg-white border border-gray-400" : "bg-blue-500"
                   }`}
                   onClick={() => flipTile(i, j)}
                   onContextMenu={(e) => markTile(e, i, j)}
                 >
                   {tile.flipped ? tile.value : tile.marked ? "V?" : "?"}
                 </button>
-              ))}
-            </React.Fragment>
-          ))}
+              ))
+            )}
+          </div>
+          <div className="flex flex-col justify-center ml-2">
+            {clues.rowClues.map((clue, idx) => (
+              <div key={`row-${idx}`} className="text-sm mb-2">
+                <div>Sum: {clue.sum}</div>
+                <div>V: {clue.voltorbs}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
       <button
         className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
         onClick={resetGame}
       >
         Reset Level
       </button>
-      <p className="mt-2 text-sm text-gray-600">
-        Right-click to mark suspected Voltorbs
-      </p>
+      <p className="mt-2 text-sm text-gray-600">Right-click to mark suspected Voltorbs</p>
     </div>
   );
 }
