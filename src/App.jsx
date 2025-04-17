@@ -126,7 +126,7 @@ export default function App() {
 
   return (
     <div className="p-4 text-center">
-      <h1 className="text-2xl font-bold mb-2">Voltorb Flip</h1>
+      <h1 className="text-2xl font-bold mb-2">Voltorb Flip!</h1>
       <p className="mb-1">Level: {level}</p>
       <p className="mb-1">Score: {score}</p>
       <p className="mb-2">High Score: {highScore}</p>
