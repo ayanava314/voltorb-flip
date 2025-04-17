@@ -1,9 +1,5 @@
 function App() {
-  return (
-    <div>
-      <h1>Voltorb Flip</h1>
-    </div>
-  );
+  return <h1>Hello from Voltorb Flip!</h1>;
 }
 
 export default App;
