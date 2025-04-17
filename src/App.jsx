@@ -40,7 +40,6 @@ if (tile.value === 'V') {
     const newBoard = generateBoard(nextLevel);
     setLevel(nextLevel);
     setBoard(newBoard);
-    setScore(1);
     setClues(calculateClues(newBoard));
     setGameOver(false);
     return;
