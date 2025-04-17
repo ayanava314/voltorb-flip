@@ -98,7 +98,7 @@ return ( <div className="p-4 text-center"> <h1 className="text-2xl font-bold mb-
               onClick={() => flipTile(i, j)}
               onContextMenu={(e) => markTile(e, i, j)}
             >
-              {tile.flipped ? tile.value : tile.marked ? "V?" : "?"}
+              {tile.flipped ? tile.value : tile.marked ? "V" : ""}
             </button>
           ))}
         </>
