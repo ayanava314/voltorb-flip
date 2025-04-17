@@ -23,8 +23,17 @@ export default function App() { const [level, setLevel] = useState(1); const [bo
 const flipTile = (i, j) => { if (gameOver || board[i][j].flipped || board[i][j].marked) return; const newBoard = board.map(row => row.map(tile => ({ ...tile }))); const tile = newBoard[i][j]; tile.flipped = true;
 
 if (tile.value === 'V') {
-  setGameOver(true);
-  alert("Voltorb! Game Over.");
+  const flippedCount = newBoard.flat().filter(t => t.flipped).length;
+  alert("Voltorb! Game Over. Returning to level " + flippedCount);
+  const newLevel = flippedCount || 1;
+  const resetScore = newLevel === 1 ? 1 : score;
+  const newBoard = generateBoard(newLevel);
+  setBoard(newBoard);
+  setLevel(newLevel);
+  setScore(resetScore);
+  setClues(calculateClues(newBoard));
+  setGameOver(false);
+  return;
 } else {
   const newScore = score * tile.value;
   setScore(newScore);
@@ -36,7 +45,7 @@ if (tile.value === 'V') {
 
   if (allBonusFlipped) {
     alert("You win! Advancing to next level.");
-    const nextLevel = level + 1;
+    const nextLevel = Math.min(level + 1, 10);
     const newBoard = generateBoard(nextLevel);
     setLevel(nextLevel);
     setBoard(newBoard);
