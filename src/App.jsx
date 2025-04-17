@@ -98,4 +98,97 @@ export default function App() {
     setBoard(newBoard);
   };
 
-  const markTile
+  const markTile = (e, i, j) => {
+    e.preventDefault();
+    if (gameOver || board[i][j].flipped) return;
+    const newBoard = board.map(row => row.map(tile => ({ ...tile })));
+    newBoard[i][j].marked = !newBoard[i][j].marked;
+    setBoard(newBoard);
+  };
+
+  const resetGame = () => {
+    const newBoard = generateBoard(level);
+    setBoard(newBoard);
+    setScore(1);
+    setGameOver(false);
+    setClues(calculateClues(newBoard));
+  };
+
+  const handleLevelSelect = (e) => {
+    const selectedLevel = parseInt(e.target.value);
+    const newBoard = generateBoard(selectedLevel);
+    setLevel(selectedLevel);
+    setBoard(newBoard);
+    setScore(1);
+    setGameOver(false);
+    setClues(calculateClues(newBoard));
+  };
+
+  return (
+    <div className="p-4 text-center">
+      <h1 className="text-2xl font-bold mb-2">Voltorb Flip</h1>
+      <p className="mb-1">Level: {level}</p>
+      <p className="mb-1">Score: {score}</p>
+      <p className="mb-2">High Score: {highScore}</p>
+
+      <div className="mb-2">
+        <label htmlFor="levelSelect" className="mr-2 font-medium">Select Level:</label>
+        <select
+          id="levelSelect"
+          value={level}
+          onChange={handleLevelSelect}
+          className="border rounded px-2 py-1"
+        >
+          {Array.from({ length: 10 }, (_, i) => i + 1).map(lvl => (
+            <option key={lvl} value={lvl}>Level {lvl}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="inline-block">
+        <div className="grid grid-cols-5 gap-2 mb-1">
+          {clues.colClues.map((clue, idx) => (
+            <div key={`col-${idx}`} className="text-sm">
+              <div>Sum: {clue.sum}</div>
+              <div>V: {clue.voltorbs}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex">
+          <div className="grid grid-cols-5 gap-2">
+            {board.map((row, i) =>
+              row.map((tile, j) => (
+                <button
+                  key={`${i}-${j}`}
+                  className={`w-16 h-16 text-xl font-bold rounded relative ${
+                    tile.flipped ? "bg-white border border-gray-400" : "bg-blue-500"
+                  }`}
+                  onClick={() => flipTile(i, j)}
+                  onContextMenu={(e) => markTile(e, i, j)}
+                >
+                  {tile.flipped ? tile.value : tile.marked ? "V?" : "?"}
+                </button>
+              ))
+            )}
+          </div>
+          <div className="flex flex-col justify-center ml-2">
+            {clues.rowClues.map((clue, idx) => (
+              <div key={`row-${idx}`} className="text-sm mb-2">
+                <div>Sum: {clue.sum}</div>
+                <div>V: {clue.voltorbs}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <button
+        className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
+        onClick={resetGame}
+      >
+        Reset Level
+      </button>
+      <p className="mt-2 text-sm text-gray-600">Right-click to mark suspected Voltorbs</p>
+    </div>
+  );
+}
